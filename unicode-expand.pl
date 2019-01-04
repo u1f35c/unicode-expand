@@ -2,11 +2,11 @@ use strict;
 use warnings;
 
 use utf8;
-use Encode qw(decode_utf8 encode_utf8);
+use Encode qw(decode_utf8);
 use charnames ();
 
 use Irssi;
-our $VERSION = '1.30';
+our $VERSION = '1.50';
 our %IRSSI = (
     authors     => 'Jonathan McDowell',
     contact     => 'noodles@earth.li',
@@ -19,40 +19,46 @@ our %IRSSI = (
 
 sub expand_message_public {
     my ($server, $data, $nick, $mask, $target) = @_;
-    Irssi::signal_continue($server, expand($data), $nick, $mask, $target);
+    Irssi::signal_continue($server, expand($server, $target, $data),
+                           $nick, $mask, $target);
 }
 
 sub expand_message_private {
     my ($server, $data, $nick, $mask) = @_;
-    Irssi::signal_continue($server, expand($data), $nick, $mask);
+    Irssi::signal_continue($server, expand($server, $nick, $data),
+                           $nick, $mask);
 }
 
 sub expand_part {
     my ($server, $channel, $nick, $mask, $reason) = @_;
-    Irssi::signal_continue($server, $channel, $nick, $mask, expand($reason));
+    Irssi::signal_continue($server, $channel, $nick, $mask,
+                           expand($server, $channel, $reason));
 }
 
 sub expand_quit {
     my ($server, $nick, $mask, $reason) = @_;
-    Irssi::signal_continue($server, $nick, $mask, expand($reason));
+    Irssi::signal_continue($server, $nick, $mask,
+                           expand($server, $nick, $reason));
 }
 
 sub expand_kick {
     my ($server, $channel, $nick, $kicker, $mask, $reason) = @_;
-    Irssi::signal_continue($server, $channel, $nick, $kicker, $mask, expand($reason));
+    Irssi::signal_continue($server, $channel, $nick, $kicker, $mask,
+                           expand($server, $channel, $reason));
 }
 
 sub expand_topic {
     my ($server, $channel, $topic, $nick, $mask) = @_;
-    Irssi::signal_continue($server, $channel, expand($topic), $nick, $mask);
+    Irssi::signal_continue($server, $channel,
+                           expand($server, $channel, $topic), $nick, $mask);
 }
 
 sub expand {
-    my ($data) = @_;
+    my ($server, $target, $data) = @_;
 
     $data = decode_utf8($data);
-    $data =~ s{([^[:ascii:]\p{Letter}\p{Punctuation}\p{Control}\p{Space}\p{Currency_Symbol}])}{
-        "${1}[".charnames::viacode(ord $1)."]"
+    $data =~ s{([^\p{Letter}\p{Punctuation}\p{Control}\p{Space}\p{Sc}[:ascii:]])}{
+        "${1} [".charnames::viacode(ord $1)."]"
     }ge;
 
     return $data;
