@@ -53,12 +53,21 @@ sub expand_topic {
                            expand($server, $channel, $topic), $nick, $mask);
 }
 
+sub expand_char {
+    my ($char) = @_;
+
+    my $name = charnames::viacode(ord $1);
+    $name = sprintf("{%X}", ord $1) unless defined($name);
+
+    return $name;
+}
+
 sub expand {
     my ($server, $target, $data) = @_;
 
     $data = decode_utf8($data);
     $data =~ s{([^\p{Letter}\p{Punctuation}\p{Control}\p{Space}\p{Sc}[:ascii:]])}{
-        "${1} [".charnames::viacode(ord $1)."]"
+        "${1} [".expand_char($1)."]"
     }ge;
 
     return $data;
