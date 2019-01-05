@@ -6,15 +6,16 @@ use Encode qw(decode_utf8);
 use charnames ();
 
 use Irssi;
-our $VERSION = '1.50';
+our $VERSION = '1.51';
 our %IRSSI = (
     authors     => 'Jonathan McDowell',
     contact     => 'noodles@earth.li',
     name        => 'unicode-expand',
     description => 'Expands Unicode characters to include their names',
     license     => 'Public Domain',
-    changed     => "Fri Dec  8 13:39:00 UTC 2017",
-    url         => 'https://the.earth.li/~noodles/unicode-expand.pl',
+    changed     => "Sat  5 Jan 15:42:20 GMT 2019",
+    url         => 'http://www.earth.li/gitweb/?p=unicode-expand.git;a=summary',
+    # Also https://github.com/u1f35c/unicode-expand
 );
 
 sub expand_message_public {
