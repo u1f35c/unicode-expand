@@ -55,19 +55,28 @@ sub expand_topic {
 }
 
 sub expand_char {
-    my ($char) = @_;
+    my ($string) = @_;
 
-    my $name = charnames::viacode(ord $1);
-    $name = sprintf("{%X}", ord $1) unless defined($name);
+    my $expansion = "";
 
-    return $name;
+    for my $c (split //,$string) {
+        my $name = charnames::viacode(ord $c);
+        $name = sprintf("{%X}", ord $c) unless defined($name);
+        if (length($expansion) == 0) {
+            $expansion .= $name;
+        } else {
+            $expansion .= "; " . $name;
+        }
+    }
+
+    return $expansion;
 }
 
 sub expand {
     my ($server, $target, $data) = @_;
 
     $data = decode_utf8($data);
-    $data =~ s{([^\p{Letter}\p{Punctuation}\p{Control}\p{Space}\p{Sc}[:ascii:]])}{
+    $data =~ s{([^\p{Letter}\p{Punctuation}\p{Control}\p{Space}\p{Sc}[:ascii:]]+)}{
         "${1} [".expand_char($1)."]"
     }ge;
 
